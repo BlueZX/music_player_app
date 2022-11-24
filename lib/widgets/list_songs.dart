@@ -9,13 +9,11 @@ import 'package:provider/provider.dart';
 class ListSongs extends StatefulWidget {
   final String? title;
   final OnAudioQuery audioQuery;
-  final PlayerProvider playerProvider;
 
   const ListSongs({
     Key? key,
     this.title,
     required this.audioQuery,
-    required this.playerProvider,
   }) : super(key: key);
 
   @override
@@ -38,6 +36,7 @@ class _ListSongsState extends State<ListSongs> {
 
   @override
   Widget build(BuildContext context) {
+    final playerProvider = Provider.of<PlayerProvider>(context);
     final playlistProvider = Provider.of<PlaylistProvider>(context);
 
     final List<SongModel>? myLiked = playlistProvider.playlists.isNotEmpty
@@ -78,7 +77,7 @@ class _ListSongsState extends State<ListSongs> {
                     child: Text('No se encontraron canciones :c'));
               }
               return StreamBuilder<SongModel?>(
-                stream: widget.playerProvider.currentSongStream.stream,
+                stream: playerProvider.currentSongStream.stream,
                 builder: (context, currentSongStream) {
                   final indexData = currentSongStream.data;
                   print('id: ${indexData?.id}');
@@ -153,11 +152,10 @@ class _ListSongsState extends State<ListSongs> {
                                 },
                               ),
                               onTap: () {
-                                widget.playerProvider
-                                    .setPlayList(item.data!, song.key);
-                                if (widget
-                                    .playerProvider.infoPlaylist.isNotEmpty) {
-                                  widget.playerProvider.audioPlayer.play();
+                                playerProvider.setPlayList(
+                                    item.data!, song.key);
+                                if (playerProvider.infoPlaylist.isNotEmpty) {
+                                  playerProvider.audioPlayer.play();
                                 }
                               },
                             ),

@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:music_player_app/widgets/widgets.dart';
+import 'package:provider/provider.dart';
 
 import '../providers/player_provider.dart';
 
 class PlayerScreen extends StatelessWidget {
-  final PlayerProvider playerProvider;
-
   const PlayerScreen({
     Key? key,
-    required this.playerProvider,
   }) : super(key: key);
 
   @override
@@ -53,7 +51,7 @@ class PlayerScreen extends StatelessWidget {
             fit: BoxFit.cover,
           ),
           const _BackgroundFilter(),
-          _MusicPlayer(size: size, playerProvider: playerProvider),
+          _MusicPlayer(size: size),
         ],
       ),
     );
@@ -62,16 +60,16 @@ class PlayerScreen extends StatelessWidget {
 
 class _MusicPlayer extends StatelessWidget {
   final Size size;
-  final PlayerProvider playerProvider;
 
   const _MusicPlayer({
     Key? key,
-    required this.playerProvider,
     required this.size,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final playerProvider = Provider.of<PlayerProvider>(context);
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
       child: StreamBuilder<int?>(

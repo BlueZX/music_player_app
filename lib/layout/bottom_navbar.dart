@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:music_player_app/providers/bottom_navegationbar_provider.dart';
+import 'package:provider/provider.dart';
 
 class BottomNavBar extends StatelessWidget {
-  final int currentIndex;
-  final Function(int)? onTap;
-
-  const BottomNavBar({Key? key, required this.currentIndex, this.onTap})
-      : super(key: key);
+  const BottomNavBar({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final navigationBarProvider =
+        Provider.of<BottomNavigationBarProvider>(context);
+
     return BottomNavigationBar(
       type: BottomNavigationBarType.fixed,
       showUnselectedLabels: true,
@@ -16,8 +17,10 @@ class BottomNavBar extends StatelessWidget {
       backgroundColor: const Color.fromRGBO(20, 20, 20, 0.8),
       unselectedItemColor: Colors.white30,
       selectedItemColor: Colors.white,
-      currentIndex: currentIndex,
-      onTap: onTap,
+      currentIndex: navigationBarProvider.currentIndex,
+      onTap: (index) {
+        navigationBarProvider.currentIndex = index;
+      },
       items: const [
         BottomNavigationBarItem(
             icon: Icon(Icons.music_note), label: 'Mi musica'),

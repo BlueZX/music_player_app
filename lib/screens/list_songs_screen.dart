@@ -3,12 +3,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:music_player_app/providers/player_provider.dart';
 import 'package:on_audio_query/on_audio_query.dart';
+import 'package:provider/provider.dart';
 
 class ListSongsScreen extends StatelessWidget {
-  final PlayerProvider playerProvider;
   const ListSongsScreen({
     Key? key,
-    required this.playerProvider,
   }) : super(key: key);
 
   @override
@@ -36,16 +35,14 @@ class ListSongsScreen extends StatelessWidget {
                     onPressed: () {}, icon: const Icon(Icons.search)))
           ],
         ),
-        body: _ListSongsContent(playerProvider: playerProvider),
+        body: const _ListSongsContent(),
       ),
     );
   }
 }
 
 class _ListSongsContent extends StatefulWidget {
-  final PlayerProvider playerProvider;
-  const _ListSongsContent({Key? key, required this.playerProvider})
-      : super(key: key);
+  const _ListSongsContent({Key? key}) : super(key: key);
 
   @override
   State<_ListSongsContent> createState() => _ListSongsContentState();
@@ -54,8 +51,10 @@ class _ListSongsContent extends StatefulWidget {
 class _ListSongsContentState extends State<_ListSongsContent> {
   final OnAudioQuery _audioQuery = OnAudioQuery();
 
-  void playSong(PlayerProvider playerProvider, [int? index]) {
+  void playSong([int? index]) {
     try {
+      final playerProvider =
+          Provider.of<PlayerProvider>(context, listen: false);
       if (!playerProvider.audioPlayer.playing) {
         playerProvider.audioPlayer.play();
         print('sonando: ${playerProvider.audioPlayer.playing}');
@@ -101,6 +100,7 @@ class _ListSongsContentState extends State<_ListSongsContent> {
 
   @override
   Widget build(BuildContext context) {
+    final playerProvider = Provider.of<PlayerProvider>(context);
     return FutureBuilder<List<SongModel>>(
       future: songsMp3(),
       builder: ((context, item) {
@@ -114,7 +114,7 @@ class _ListSongsContentState extends State<_ListSongsContent> {
         }
 
         return StreamBuilder<SongModel?>(
-            stream: widget.playerProvider.currentSongStream.stream,
+            stream: playerProvider.currentSongStream.stream,
             builder: (context, currentSongStream) {
               final indexData = currentSongStream.data;
               return ListView.builder(
@@ -156,9 +156,9 @@ class _ListSongsContentState extends State<_ListSongsContent> {
                         color: Colors.white,
                       ),
                       onTap: () {
-                        widget.playerProvider.setPlayList(item.data!, index);
-                        if (widget.playerProvider.infoPlaylist.isNotEmpty) {
-                          playSong(widget.playerProvider, index);
+                        playerProvider.setPlayList(item.data!, index);
+                        if (playerProvider.infoPlaylist.isNotEmpty) {
+                          playSong(index);
                         }
                       },
                     );

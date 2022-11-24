@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:music_player_app/providers/player_provider.dart';
+import 'package:provider/provider.dart';
 
 class PlayBarControl extends StatelessWidget {
-  final PlayerProvider playerProvider;
   final SongModel songData;
 
   const PlayBarControl({
     Key? key,
-    required this.playerProvider,
     required this.songData,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final playerProvider = Provider.of<PlayerProvider>(context);
     return Container(
       width: double.infinity,
       height: 55,

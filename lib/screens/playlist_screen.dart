@@ -4,14 +4,13 @@ import 'dart:math' as math;
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:music_player_app/models/playlist_model.dart';
 import 'package:music_player_app/providers/player_provider.dart';
+import 'package:provider/provider.dart';
 
 class PlaylistScreen extends StatefulWidget {
   final MyPlaylistModel playlist;
-  final PlayerProvider playerProvider;
   const PlaylistScreen({
     Key? key,
     required this.playlist,
-    required this.playerProvider,
   }) : super(key: key);
 
   @override
@@ -52,6 +51,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final playerProvider = Provider.of<PlayerProvider>(context, listen: false);
     expandedHeight = MediaQuery.of(context).size.height * 0.4;
 
     return CustomScrollView(
@@ -94,10 +94,9 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                   color: Colors.red[300],
                 ),
                 onTap: () {
-                  widget.playerProvider
-                      .setPlayList(widget.playlist.songs, index);
-                  if (widget.playerProvider.infoPlaylist.isNotEmpty) {
-                    widget.playerProvider.audioPlayer.play();
+                  playerProvider.setPlayList(widget.playlist.songs, index);
+                  if (playerProvider.infoPlaylist.isNotEmpty) {
+                    playerProvider.audioPlayer.play();
                   }
                 },
               );

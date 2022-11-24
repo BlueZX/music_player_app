@@ -49,7 +49,34 @@ class _AppWrapperState extends State<AppWrapper> {
     requestPermission();
   }
 
-  dynamic getCurrentTab(int index, PlayerProvider playerProvider) {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: widget.backgroundColor ?? Colors.transparent,
+      appBar: widget.appBar,
+      bottomNavigationBar:
+          widget.withBottomNavbar! ? const BottomNavBar() : null,
+      body: widget.withBottomNavbar!
+          ? _TabScreen(
+              audioQuery: audioQuery,
+              content: widget.content,
+            )
+          : widget.content,
+    );
+  }
+}
+
+class _TabScreen extends StatelessWidget {
+  final OnAudioQuery audioQuery;
+  final Widget? content;
+
+  const _TabScreen({
+    Key? key,
+    required this.audioQuery,
+    this.content,
+  }) : super(key: key);
+
+  Widget getCurrentTab(BuildContext context, int index) {
     switch (index) {
       // case 2:
       //   return const PlaylistScreen();
@@ -63,13 +90,10 @@ class _AppWrapperState extends State<AppWrapper> {
           onGenerateRoute: (settings) {
             Widget page = HomeContentScreen(
               audioQuery: audioQuery,
-              playerProvider: playerProvider,
             );
             if (settings.name == 'playlist' && settings.arguments != null) {
               page = PlaylistScreen(
                 playlist: settings.arguments as MyPlaylistModel,
-                playerProvider: playerProvider,
-                // playlistProvider = playlistProvider,
               );
             }
             return MaterialPageRoute(builder: (_) => page);
@@ -77,9 +101,7 @@ class _AppWrapperState extends State<AppWrapper> {
         );
       case 1:
       default:
-        return ListSongsScreen(
-          playerProvider: playerProvider,
-        );
+        return const ListSongsScreen();
     }
   }
 
@@ -89,65 +111,43 @@ class _AppWrapperState extends State<AppWrapper> {
         Provider.of<BottomNavigationBarProvider>(context);
     final playerProvider = Provider.of<PlayerProvider>(context);
 
-    return Scaffold(
-      backgroundColor: widget.backgroundColor ?? Colors.transparent,
-      appBar: widget.appBar,
-      bottomNavigationBar: widget.withBottomNavbar!
-          ? BottomNavBar(
-              currentIndex: navigationBarProvider.currentIndex,
-              onTap: (index) {
-                navigationBarProvider.currentIndex = index;
-              },
-            )
-          : null,
-      body: widget.withBottomNavbar!
-          ? StreamBuilder<SongModel?>(
-              stream: playerProvider.currentSongStream.stream,
-              builder: (context, currentSongStream) {
-                final indexData = currentSongStream.data;
-                return Stack(
-                  children: [
-                    widget.content ??
-                        getCurrentTab(
-                          navigationBarProvider.currentIndex,
-                          playerProvider,
-                        ),
-                    if (playerProvider.infoPlaylist.isNotEmpty &&
-                        indexData != null)
-                      Align(
-                        alignment: Alignment.bottomCenter,
-                        child: GestureDetector(
-                          onTap: () {
-                            if (playerProvider.infoPlaylist.isNotEmpty) {
-                              Navigator.of(context).push(
-                                CustomPageRoute(
-                                    child: PlayerScreen(
-                                        playerProvider: playerProvider)),
-                              );
-                            }
-                          },
-                          onHorizontalDragEnd: (details) {
-                            print('current detail: ${details.primaryVelocity}');
-                            if (details.primaryVelocity! < -500) {
-                              playerProvider
-                                  .setId(playerProvider.audioPlayer.nextIndex);
-                              playerProvider.audioPlayer.seekToNext();
-                            } else if (details.primaryVelocity! > 500) {
-                              playerProvider.setId(
-                                  playerProvider.audioPlayer.previousIndex);
-                              playerProvider.audioPlayer.seekToPrevious();
-                            }
-                          },
-                          child: PlayBarControl(
-                              playerProvider: playerProvider,
-                              songData: indexData),
-                        ),
-                      ),
-                  ],
-                );
-              },
-            )
-          : widget.content,
+    return StreamBuilder<SongModel?>(
+      stream: playerProvider.currentSongStream.stream,
+      builder: (context, currentSongStream) {
+        final indexData = currentSongStream.data;
+        return Stack(
+          children: [
+            content ??
+                getCurrentTab(context, navigationBarProvider.currentIndex),
+            if (playerProvider.infoPlaylist.isNotEmpty && indexData != null)
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: GestureDetector(
+                  onTap: () {
+                    if (playerProvider.infoPlaylist.isNotEmpty) {
+                      Navigator.of(context).push(
+                        CustomPageRoute(child: const PlayerScreen()),
+                      );
+                    }
+                  },
+                  onHorizontalDragEnd: (details) {
+                    print('current detail: ${details.primaryVelocity}');
+                    if (details.primaryVelocity! < -500) {
+                      playerProvider
+                          .setId(playerProvider.audioPlayer.nextIndex);
+                      playerProvider.audioPlayer.seekToNext();
+                    } else if (details.primaryVelocity! > 500) {
+                      playerProvider
+                          .setId(playerProvider.audioPlayer.previousIndex);
+                      playerProvider.audioPlayer.seekToPrevious();
+                    }
+                  },
+                  child: PlayBarControl(songData: indexData),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }

@@ -22,6 +22,7 @@ class PlayerScreen extends StatelessWidget {
       backgroundColor: Colors.transparent,
       appBar: AppBar(
         centerTitle: true,
+        toolbarHeight: kToolbarHeight * 2,
         elevation: 0,
         backgroundColor: Colors.transparent,
         leading: IconButton(

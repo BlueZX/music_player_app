@@ -105,6 +105,18 @@ class _TabScreen extends StatelessWidget {
     }
   }
 
+  Future<T?> handlePlayer<T>(BuildContext context) {
+    return showModalBottomSheet(
+      backgroundColor: Colors.transparent,
+      clipBehavior: Clip.antiAlias,
+      context: context,
+      enableDrag: true,
+      isDismissible: true,
+      isScrollControlled: true,
+      builder: (modalContext) => const PlayerScreen(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final navigationBarProvider =
@@ -125,11 +137,10 @@ class _TabScreen extends StatelessWidget {
                 child: GestureDetector(
                   onTap: () {
                     if (playerProvider.infoPlaylist.isNotEmpty) {
-                      Navigator.of(context).push(
-                        CustomPageRoute(child: const PlayerScreen()),
-                      );
+                      handlePlayer(context);
                     }
                   },
+                  onVerticalDragStart: (details) => handlePlayer(context),
                   onHorizontalDragEnd: (details) {
                     print('current detail: ${details.primaryVelocity}');
                     if (details.primaryVelocity! < -500) {

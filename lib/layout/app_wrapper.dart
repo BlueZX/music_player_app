@@ -49,13 +49,16 @@ class _AppWrapperState extends State<AppWrapper> {
     requestPermission();
   }
 
-  dynamic getCurrentTab(int index, PlayerProvider playerProvider,
-      PlaylistProvider playlistProvider) {
+  dynamic getCurrentTab(int index, PlayerProvider playerProvider) {
     switch (index) {
       // case 2:
       //   return const PlaylistScreen();
       case 0:
+        final playlistProvider =
+            Provider.of<PlaylistProvider>(context, listen: false);
+
         playlistProvider.loadPlaylists();
+
         return Navigator(
           onGenerateRoute: (settings) {
             Widget page = HomeContentScreen(
@@ -85,8 +88,6 @@ class _AppWrapperState extends State<AppWrapper> {
     final navigationBarProvider =
         Provider.of<BottomNavigationBarProvider>(context);
     final playerProvider = Provider.of<PlayerProvider>(context);
-    final playlistProvider =
-        Provider.of<PlaylistProvider>(context, listen: false);
 
     return Scaffold(
       backgroundColor: widget.backgroundColor ?? Colors.transparent,
@@ -110,7 +111,6 @@ class _AppWrapperState extends State<AppWrapper> {
                         getCurrentTab(
                           navigationBarProvider.currentIndex,
                           playerProvider,
-                          playlistProvider,
                         ),
                     if (playerProvider.infoPlaylist.isNotEmpty &&
                         indexData != null)

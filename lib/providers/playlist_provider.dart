@@ -1,8 +1,39 @@
 import 'package:flutter/cupertino.dart';
 import 'package:music_player_app/providers/db_provider.dart';
+import 'package:on_audio_query/on_audio_query.dart';
 
 class PlaylistProvider extends ChangeNotifier {
   List<MyPlaylistModel> playlists = [];
+  final OnAudioQuery _audioQuery = OnAudioQuery();
+  List<SongModel> _allSongs = [];
+
+  OnAudioQuery get audioQuery => _audioQuery;
+  List<SongModel> get allSongs => _allSongs;
+
+  Future<List<SongModel>> loadAllLocalSongs() async {
+    List<SongModel> songs = await _audioQuery.querySongs(
+      sortType: null,
+      orderType: OrderType.ASC_OR_SMALLER,
+      uriType: UriType.EXTERNAL,
+      ignoreCase: true,
+    );
+
+    _allSongs = songs
+        .where((song) => song.fileExtension == 'mp3' && song.duration! > 30000)
+        .toList();
+
+    return _allSongs;
+  }
+
+  Future<List<SongModel>> searchLocalSongs(String filter) async {
+    List<SongModel> songs =
+        _allSongs.isNotEmpty ? _allSongs : await loadAllLocalSongs();
+
+    return songs
+        .where(
+            (song) => song.title.toLowerCase().contains(filter.toLowerCase()))
+        .toList();
+  }
 
   newPlaylist(MyPlaylistModel newPlaylist) async {
     await DBProvider.db.newPlaylist(newPlaylist);

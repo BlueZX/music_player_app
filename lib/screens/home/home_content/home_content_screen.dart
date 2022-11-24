@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:music_player_app/search/search_delegate.dart';
 import 'package:music_player_app/widgets/widgets.dart';
-import 'package:on_audio_query/on_audio_query.dart';
 
 class HomeContentScreen extends StatelessWidget {
-  final OnAudioQuery audioQuery;
-
   const HomeContentScreen({
     Key? key,
-    required this.audioQuery,
   }) : super(key: key);
 
   @override
@@ -20,18 +17,25 @@ class HomeContentScreen extends StatelessWidget {
         title: const Text('Music Player'),
         actions: [
           Container(
-              margin: const EdgeInsets.only(right: 10),
-              child: IconButton(
-                  onPressed: () {}, icon: const Icon(Icons.search_outlined)))
+            margin: const EdgeInsets.only(right: 10),
+            child: IconButton(
+              icon: const Icon(
+                Icons.search_outlined,
+              ),
+              onPressed: () {
+                showSearch(context: context, delegate: SongSearchDelegate());
+              },
+            ),
+          )
         ],
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Column(
-          children: [
-            const PlaylistSlider(),
-            ListSongs(audioQuery: audioQuery),
-            const SizedBox(
+          children: const [
+            PlaylistSlider(),
+            ListSongs(),
+            SizedBox(
               height: 60,
             ),
           ],

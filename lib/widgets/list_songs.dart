@@ -6,33 +6,13 @@ import 'package:music_player_app/providers/playlist_provider.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:provider/provider.dart';
 
-class ListSongs extends StatefulWidget {
+class ListSongs extends StatelessWidget {
   final String? title;
-  final OnAudioQuery audioQuery;
 
   const ListSongs({
     Key? key,
     this.title,
-    required this.audioQuery,
   }) : super(key: key);
-
-  @override
-  State<ListSongs> createState() => _ListSongsState();
-}
-
-class _ListSongsState extends State<ListSongs> {
-  Future<List<SongModel>> songsMp3() async {
-    List<SongModel> allSongs = await widget.audioQuery.querySongs(
-      sortType: null,
-      orderType: OrderType.ASC_OR_SMALLER,
-      uriType: UriType.EXTERNAL,
-      ignoreCase: true,
-    );
-
-    return allSongs
-        .where((song) => song.fileExtension == 'mp3' && song.duration! > 30000)
-        .toList();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +32,7 @@ class _ListSongsState extends State<ListSongs> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15),
             child: AutoSizeText(
-              widget.title ?? 'Todas las canciones',
+              title ?? 'Todas las canciones',
               style: const TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.bold,
@@ -63,7 +43,7 @@ class _ListSongsState extends State<ListSongs> {
             height: 20,
           ),
           FutureBuilder<List<SongModel>>(
-            future: songsMp3(),
+            future: playlistProvider.loadAllLocalSongs(),
             builder: ((context, item) {
               if (item.data == null || myLiked == null) {
                 return const Center(

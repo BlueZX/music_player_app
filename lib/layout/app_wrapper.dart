@@ -8,7 +8,6 @@ import 'package:on_audio_query/on_audio_query.dart';
 import 'package:music_player_app/layout/bottom_navbar.dart';
 import 'package:music_player_app/providers/bottom_navegationbar_provider.dart';
 import 'package:music_player_app/providers/player_provider.dart';
-import 'package:music_player_app/widgets/custom_page_route.dart';
 import 'package:music_player_app/widgets/play_bar_control.dart';
 import 'package:music_player_app/screens/screens.dart';
 
@@ -31,13 +30,14 @@ class AppWrapper extends StatefulWidget {
 }
 
 class _AppWrapperState extends State<AppWrapper> {
-  final OnAudioQuery audioQuery = OnAudioQuery();
-
   requestPermission() async {
     if (Platform.isAndroid) {
-      bool permissionStatus = await audioQuery.permissionsStatus();
+      final playlistProvider =
+          Provider.of<PlaylistProvider>(context, listen: false);
+      bool permissionStatus =
+          await playlistProvider.audioQuery.permissionsStatus();
       if (!permissionStatus) {
-        await audioQuery.permissionsRequest();
+        await playlistProvider.audioQuery.permissionsRequest();
       }
       setState(() {});
     }
@@ -57,22 +57,17 @@ class _AppWrapperState extends State<AppWrapper> {
       bottomNavigationBar:
           widget.withBottomNavbar! ? const BottomNavBar() : null,
       body: widget.withBottomNavbar!
-          ? _TabScreen(
-              audioQuery: audioQuery,
-              content: widget.content,
-            )
+          ? _TabScreen(content: widget.content)
           : widget.content,
     );
   }
 }
 
 class _TabScreen extends StatelessWidget {
-  final OnAudioQuery audioQuery;
   final Widget? content;
 
   const _TabScreen({
     Key? key,
-    required this.audioQuery,
     this.content,
   }) : super(key: key);
 
@@ -88,9 +83,7 @@ class _TabScreen extends StatelessWidget {
 
         return Navigator(
           onGenerateRoute: (settings) {
-            Widget page = HomeContentScreen(
-              audioQuery: audioQuery,
-            );
+            Widget page = const HomeContentScreen();
             if (settings.name == 'playlist' && settings.arguments != null) {
               page = PlaylistScreen(
                 playlist: settings.arguments as MyPlaylistModel,
